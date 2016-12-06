@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tables Page</title>
+
+	<!-- BootStrap CSS link -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<!-- javascript links -->
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	
+</head>
+<body>
+
+	<div class="container">
+
+    <div class="jumbotron" style="border: black solid 3px; background-color: beige;">        
+       <h1 class="text-center" style="color: red;"><span class="glyphicon glyphicon-fire"></span> Hot Restaurant</h1>
+        <hr>
+			<h2 class="text-center">Current Reservations and Waiting List</h2>
+			<br>
+
+			<div class="text-center">
+				<a href="/reserve"><button type="button" class="btn btn-lg btn-danger"><span class="glyphicon glyphicon-credit-card"></span> Make Reservation</button></a>
+				<a href="/"><button type="button" class="btn btn-lg btn-default"><span class="glyphicon glyphicon-home"></span></button></a>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+
+				<!-- current tables used -->
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">Current Reservations</h4>
+					</div>
+					<div class="panel-body" id="tableSection">
+					</div>
+				</div>
+
+				<!-- waiting list panel -->
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">Waiting List</h4>
+					</div>
+					<div class="panel-body" id="waitlistSection">
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+	    <footer class="footer">
+	      <div class="container">
+	      	<p>Control Panel</p>
+	        <p><a href="#" id="clear">Clear Table</a> | <a href="/api/tables">API Table Link</a> | <a href="/api/waitlist">API Wait List</a></p>
+	      </div>
+	    </footer>
+
+	</div>
+	
+<!-- script for handling data fromm server -->
+
+<script type="text/javascript">
+
+
+	function runTableQuery(){
+
+// GETting script
+		// get the location of the root page (generic)
+		var currentURL = window.location.origin;
+
+		// ajax: url of api to GET data associated with url location (initially set to localhost)
+		$.ajax({url: currentURL + "/api/tables", method: "GET"})
+			.done(function(tableData) {
+
+				// logging url for troubleshooting
+				console.log("------------------------------------");
+				console.log("URL: " + currentURL + "/api/tables");
+				console.log("------------------------------------");
+
+				// log data retrieved to console - should show as object.
+				console.log(tableData);
+				console.log("------------------------------------")
+
+				// loop and display each customer
+				for (var i=0; i<tableData.length; i++){
+
+					// generate html "Well" (section); add table content for each reserved table
+					var tableSection = $("<div>");
+					tableSection.addClass('well');
+					tableSection.attr('id', 'tableWell-' + i+1)
+					$('#tableSection').append(tableSection);
+
+					var tableNumber = i + 1;
+
+
+					// display remaining fields in the html (Section Name, Date, URL)
+					$("#tableWell-"+ i+1).append('<h2><span class="label label-primary">' + tableNumber + "</span> | " + tableData[i].customerID + "</h2>");
+				}
+			});
+	}
+
+	function runWaitListQuery(){
+
+		//get location of root page (generic)
+		var currentURL = window.location.origin;
+
+		// ajax: function uses URL of API to GET data associated with it (initially set to localhost)
+		$.ajax({url: currentURL + "/api/waitlist", method: "GET"})
+			.done(function(waitlistData) {
+
+				// log URL for troubleshooting
+				console.log("------------------------------------");
+				console.log("URL: " + currentURL + "/api/waitlist");
+				console.log("------------------------------------");
+
+				// log data to console - should show up as an object.
+				console.log(waitlistData);
+				console.log("------------------------------------")
+
+				// loop and display each of the customers
+				for (var i=0; i<waitlistData.length; i++){
+
+					// generate HTML "Well" (Section) to add table content for each reserved table
+					var waitlistSection = $("<div>");
+					waitlistSection.addClass('well');
+					waitlistSection.attr('id', 'waitlistWell-' + i+1)
+					$('#waitlistSection').append(waitlistSection);
+
+					var tableNumber = i + 1;
+
+					// display remaining fields in the HTML (Section Name, Date, URL)
+					$("#waitlistWell-"+ i+1).append('<h2><span class="label label-primary">' + tableNumber + "</span> | " + waitlistData[i].customerID + "</h2>");
+				}
+			});
+	}
+
+	// function to reset all data in tables. (for demo purposes)
+	function clearTable(){
+
+		var currentURL = window.location.origin;
+		$.ajax({url: currentURL + "/api/clear", method: "POST"})
+
+	}
+
+	$("#clear").on('click', function(){
+		alert("Clearing...");
+		clearTable();
+
+		// refresh the page after data is cleared
+		location.reload();
+	})
+
+
+	// run queries
+	runTableQuery();
+	runWaitListQuery();
+
+
+</script>
+
+</body>
+
+</html>
